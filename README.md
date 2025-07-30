@@ -1,106 +1,142 @@
-# Simple RAG Pipeline
+# RAG Pipeline Lokal dengan Ollama 🚀
 
-This project is a beginner-friendly tutorial project for building a Retrieval Augmented Generation (RAG) system. It demonstrates how to index documents, retrieve relevant content, generate AI-powered responses, and evaluate results—all through a command line interface (CLI).
+*(Modifikasi dari Proyek Asli pixegami)*
 
-![rag-image](./rag-design-basic.png)
+Repositori ini adalah versi yang telah dimodifikasi dan disederhanakan secara signifikan dari proyek `simple-rag-pipeline` oleh pixegami. Modifikasi ini bertujuan untuk membuat sistem RAG (Retrieval-Augmented Generation) yang berjalan **100% lokal** menggunakan Ollama, dengan fokus pada kemudahan penggunaan, stabilitas, dan fleksibilitas.
 
-## Overview
+Seluruh proses, mulai dari memproses dokumen hingga menghasilkan jawaban, terjadi sepenuhnya di komputer Anda. Ini memastikan privasi data terjaga dan tidak memerlukan koneksi internet setelah penyiapan awal.
 
-The RAG Framework lets you:
+---
 
-- **Index Documents:** Process and break documents (e.g., PDFs) into smaller, manageable chunks.
-- **Store & Retrieve Information:** Save document embeddings in a vector database (using LanceDB) and search using similarity.
-- **Generate Responses:** Use an AI model (via the OpenAI API) to provide concise answers based on the retrieved context.
-- **Evaluate Responses:** Compare the generated response against expected answers and view the reasoning behind the evaluation.
+## ✨ Fitur Utama & Modifikasi
 
-## Architecture
+Proyek ini mengambil konsep inti dari repositori asli dan memperbaikinya dengan beberapa modifikasi kunci:
 
-- **Pipeline (src/rag_pipeline.py):**  
-  Orchestrates the process using:
+* **100% Lokal & Offline**
+  Menggunakan Ollama untuk menjalankan model embedding dan LLM secara lokal. Tidak ada data yang dikirim ke API eksternal.
 
-  - **Datastore:** Manages embeddings and vector storage.
-  - **Indexer:** Processes documents and creates data chunks. Two versions are available—a basic PDF indexer and one using the Docling package.
-  - **Retriever:** Searches the datastore to pull relevant document segments.
-  - **ResponseGenerator:** Generates answers by calling the AI service.
-  - **Evaluator:** Compares the AI responses to expected answers and explains the outcome.
+* **Pemrosesan Dokumen yang Andal**
+  Mengganti metode pemecahan teks asli dengan LangChain (`PyPDFLoader` dan `RecursiveCharacterTextSplitter`) untuk memastikan PDF dibaca dan dipecah menjadi potongan teks dengan ukuran konsisten, menghilangkan error fundamental.
 
-- **Interfaces (interface/):**  
-  Abstract base classes define contracts for all components (e.g., BaseDatastore, BaseIndexer, BaseRetriever, BaseResponseGenerator, and BaseEvaluator), making it easy to extend or swap implementations.
+* **Skrip Tunggal yang Disederhanakan**
+  Struktur proyek yang kompleks disatukan menjadi satu skrip utama, `run_local.py`, yang menangani seluruh alur kerja dari awal hingga akhir.
 
-## Installation
+* **Mode Chat Interaktif**
+  Setelah dokumen diproses, Anda dapat langsung bertanya jawab dengan dokumen melalui terminal.
 
-#### Set Up a Virtual Environment (Optional but Recommended)
+* **Dukungan Model yang Fleksibel**
+  Mudah mengganti model embedding atau LLM hanya dengan mengubah nama model di dalam skrip—selama model tersedia di Ollama.
 
-```bash
-python -m venv venv
-source venv/bin/activate   # On Windows: venv\Scripts\activate
-```
+---
 
-#### Install Dependencies
+## ⚙️ Cara Kerja
 
-```bash
-pip install -r requirements.txt
-```
+1. **Load & Chunk**
+   Skrip membaca semua file PDF di `sample_data/source/` dan memecahnya menjadi potongan teks kecil dengan LangChain.
 
-#### Configure Environment Variables
+2. **Embedding**
+   Setiap potongan teks diubah menjadi vektor embedding menggunakan model embedding lokal (contoh: `nomic-embed-text`).
 
-We use OpenAI for the LLM (you can modify/replace it in `src/util/invoke_ai.py`). Make sure to set your OpenAI API key. For example:
+3. **Retrieval**
+   Pertanyaan Anda juga diubah menjadi embedding. Sistem mencari potongan teks dengan vektor paling mirip secara matematis.
 
-```sh
-export OPENAI_API_KEY='your_openai_api_key'
-```
+4. **Generation**
+   Potongan teks relevan digabungkan dengan pertanyaan, lalu diberikan ke LLM (contoh: `phi3:mini` atau `llama3:8b`) untuk menghasilkan jawaban dalam bahasa alami.
 
-You will also need a Cohere key for the re-ranking feature used in `src/impl/retriever.py`. You can create an account and create an API key at https://cohere.com/
+---
 
-```sh
-set -x CO_API_KEY "xxx"
-```
+## 🚀 Prasyarat
 
-## Usage
+* **Python 3.10+**
+* **Ollama**
+  Unduh dan instal dari situs resmi Ollama. Pastikan layanan Ollama berjalan di latar belakang.
 
-The CLI provides several commands to interact with the RAG pipeline. By default, they will use the source/eval paths specified in `main.py`, but there are flags to override them.
+---
 
-```python
-DEFAULT_SOURCE_PATH = "sample_data/source/"
-DEFAULT_EVAL_PATH = "sample_data/eval/sample_questions.json"
-```
+## 🛠️ Penyiapan & Instalasi
 
-#### Run the Full Pipeline
+1. **Clone Repositori**
 
-This command resets the datastore, indexes documents, and evaluates the model.
+   ```bash
+   git clone https://github.com/djoov/simple-rag-pipeline
+   cd simple-rag-pipeline
+   ```
 
-```bash
-python main.py run
-```
+2. **Buat Virtual Environment**
 
-#### Reset the Database
+   ```bash
+   # Windows
+   python -m venv venv
+   .\venv\Scripts\activate
 
-Clears the vector database.
+   # macOS / Linux
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
 
-```bash
-python main.py reset
-```
+3. **Instal Dependensi**
 
-#### Add Documents
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Index and embed documents. You can specify a file or directory path.
+4. **Unduh Model Ollama**
 
-```bash
-python main.py add -p "sample_data/source/"
-```
+   * Model Embedding (Wajib):
 
-#### Query the Database
+     ```bash
+     ollama pull nomic-embed-text
+     ```
 
-Search for information using a query string.
+   * Model LLM Penjawab (Pilih Salah Satu):
 
-```bash
-python main.py query "What is the opening year of The Lagoon Breeze Hotel?"
-```
+     ```bash
+     # Untuk VRAM < 6GB
+     ollama pull phi3:mini
 
-#### Evaluate the Model
+     # Untuk VRAM > 6GB
+     ollama pull llama3:8b
+     ```
 
-Use a JSON file (with question/answer pairs) to evaluate the response quality.
+---
 
-```bash
-python main.py evaluate -f "sample_data/eval/sample_questions.json"
-```
+## ▶️ Cara Menjalankan
+
+1. **Tambahkan Dokumen**
+   Letakkan file PDF yang ingin diolah di `sample_data/source/`.
+
+2. **Jalankan Skrip**
+
+   ```bash
+   python run_local.py
+   ```
+
+3. **Tanya Jawab**
+   Setelah proses selesai, Anda akan melihat prompt:
+
+   ```txt
+   Masukkan pertanyaan Anda (atau ketik 'keluar' untuk berhenti):
+   ```
+
+   Ketik pertanyaan, tekan Enter, dan tunggu jawaban.
+
+---
+
+## 🔧 Kustomisasi & Eksperimen
+
+* **Mengganti Model LLM**
+  Ubah `LLM_MODEL` di `run_local.py` ke model yang sudah diunduh.
+
+* **Mengganti Model Embedding**
+  Unduh dan ubah `EMBEDDING_MODEL` di skrip jika diperlukan.
+
+* **Menyesuaikan Ukuran Chunk**
+  Atur `chunk_size` dan `chunk_overlap` di `RecursiveCharacterTextSplitter` sesuai kebutuhan.
+
+---
+
+## 🙏 Ucapan Terima Kasih
+
+Proyek ini tidak akan ada tanpa kerja keras dan sumber terbuka dari pixegami.
+
+Kunjungi repositori aslinya di: [https://github.com/pixegami/simple-rag-pipeline](https://github.com/pixegami/simple-rag-pipeline)
