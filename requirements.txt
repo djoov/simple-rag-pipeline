@@ -1,6 +1,9 @@
-# Default Dependencies
-pydantic>=2.0.0  # For data validation
-openai>=1.0.0  # For AI service integration
+pydantic>=2.0.0
 lancedb==0.22.0
-docling==2.31.0
-cohere==5.15.0
+ollama
+numpy
+# Mengganti docling dengan langchain
+langchain
+langchain-community
+langchain-text-splitters
+pypdf
