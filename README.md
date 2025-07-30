@@ -13,7 +13,7 @@ Seluruh proses, mulai dari memproses dokumen hingga menghasilkan jawaban, terjad
 Proyek ini mengambil konsep inti dari repositori asli dan memperbaikinya dengan beberapa modifikasi kunci:
 
 * **100% Lokal & Offline**
-  Menggunakan Ollama untuk menjalankan model embedding dan LLM secara lokal. Tidak ada data yang dikirim ke API eksternal.
+  Menggunakan Ollama untuk menjalankan model embedding dan LLM secara lokal. Tidak ada data yang dikirim ke API eksternal
 
 * **Pemrosesan Dokumen yang Andal**
   Mengganti metode pemecahan teks asli dengan LangChain (`PyPDFLoader` dan `RecursiveCharacterTextSplitter`) untuk memastikan PDF dibaca dan dipecah menjadi potongan teks dengan ukuran konsisten, menghilangkan error fundamental.
